@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const emptyCells = (board) => {
-        return board.filter((cell) => cell === "");
+        return board.map((cell, index) => (cell === "") ? index : -1).filter(index => index !== -1);
     };
 
     const minimax = (newBoard, player) => {
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         for (let i = 0; i < availableSpots.length; i++) {
             const move = {};
-            move.index = newBoard[availableSpots[i]];
+            move.index = availableSpots[i];
             newBoard[availableSpots[i]] = player;
 
             if (player === "O") {
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 move.score = result.score;
             }
 
-            newBoard[availableSpots[i]] = move.index;
+            newBoard[availableSpots[i]] = "";
 
             moves.push(move);
         }
@@ -113,10 +113,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 cell.innerText = currentPlayer;
                 cell.style.backgroundColor = "#eee";
                 board[index] = currentPlayer;
-                checkWin();
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                if (currentPlayer === "O" && gameActive) {
-                    computerMove();
+
+                if (checkWin(board, currentPlayer)) {
+                    gameActive = false;
+                    message.innerText = `${currentPlayer} wins!`;
+
+                    if (currentPlayer === "X") {
+                        playerScore++;
+                        playerScoreElement.innerText = playerScore;
+                    } else {
+                        computerScore++;
+                        computerScoreElement.innerText = computerScore;
+                    }
+                } else if (checkDraw()) {
+                    gameActive = false;
+                    message.innerText = "It's a draw!";
+                } else {
+                    currentPlayer = currentPlayer === "X" ? "O" : "X";
+                    if (currentPlayer === "O" && gameActive) {
+                        computerMove();
+                    }
                 }
             }
         });
