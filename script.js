@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let gameActive = true;
     let playerScore = 0;
     let computerScore = 0;
-    let winningPlayer = null;
 
     const winningCombinations = [
         [0, 1, 2],
@@ -30,20 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                 gameActive = false;
                 highlightWinningCombination(combination);
-                winningPlayer = currentPlayer;
-                if (winningPlayer === "X") {
-                    playerScore++;
-                    playerScoreElement.innerText = playerScore;
-                } else {
-                    computerScore++;
-                    computerScoreElement.innerText = computerScore;
-                }
-                message.innerText = `${winningPlayer} wins!`;
+                updateScore(currentPlayer);
+                message.innerText = `${currentPlayer} wins!`;
                 return;
             }
         }
 
-        if (board.includes("") === false) {
+        if (!board.includes("") && gameActive) {
             gameActive = false;
             message.innerText = "It's a draw!";
         }
@@ -51,25 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const highlightWinningCombination = (combination) => {
         for (const index of combination) {
-            cells[index].style.backgroundColor = "#4CAF50";
-            cells[index].style.color = "#fff";
+            cells[index].classList.add("winning-cell");
         }
     };
 
-    const computerMove = () => {
-        if (gameActive) {
-            const availableCells = board
-                .map((cell, index) => (cell === "" ? index : null))
-                .filter((cell) => cell !== null);
-
-            const randomIndex = Math.floor(Math.random() * availableCells.length);
-            const computerCellIndex = availableCells[randomIndex];
-
-            if (computerCellIndex !== undefined) {
-                setTimeout(() => {
-                    cells[computerCellIndex].click();
-                }, 1000); // Delay the computer move for added realism
-            }
+    const updateScore = (player) => {
+        if (player === "X") {
+            playerScore++;
+            playerScoreElement.innerText = playerScore;
+        } else {
+            computerScore++;
+            computerScoreElement.innerText = computerScore;
         }
     };
 
@@ -81,23 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 board[index] = currentPlayer;
                 checkWin();
                 currentPlayer = currentPlayer === "X" ? "O" : "X";
-                if (currentPlayer === "O" && gameActive) {
-                    computerMove();
-                }
             }
         });
     });
 
     restartButton.addEventListener("click", () => {
-        board = ["", "", "", "", "", "", "", "", ""];
-        gameActive = true;
-        message.innerText = "";
-        winningPlayer = null;
-        cells.forEach((cell) => {
-            cell.innerText = "";
-            cell.style.backgroundColor = "#eee";
-            cell.style.color = "#000";
-        });
+        resetGame();
     });
 
     resetScoreButton.addEventListener("click", () => {
@@ -105,5 +78,17 @@ document.addEventListener("DOMContentLoaded", () => {
         computerScore = 0;
         playerScoreElement.innerText = "0";
         computerScoreElement.innerText = "0";
+        resetGame();
     });
+
+    const resetGame = () => {
+        board = ["", "", "", "", "", "", "", "", ""];
+        gameActive = true;
+        message.innerText = "";
+        cells.forEach((cell) => {
+            cell.innerText = "";
+            cell.style.backgroundColor = "#eee";
+            cell.classList.remove("winning-cell");
+        });
+    };
 });

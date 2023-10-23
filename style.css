@@ -73,3 +73,8 @@ body {
 .reset-score:hover {
     background-color: #ff1d0f;
 }
+
+.winning-cell {
+    background-color: #4CAF50;
+    color: #fff;
+}
