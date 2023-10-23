@@ -23,43 +23,31 @@ document.addEventListener("DOMContentLoaded", () => {
         [2, 4, 6],
     ];
 
-    const checkWin = () => {
+    const checkWin = (board, player) => {
         for (const combination of winningCombinations) {
             const [a, b, c] = combination;
-            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                gameActive = false;
-                highlightWinningCombination(combination);
-                if (currentPlayer === "X") {
-                    playerScore++;
-                    playerScoreElement.innerText = playerScore;
-                } else {
-                    computerScore++;
-                    computerScoreElement.innerText = computerScore;
-                }
-                message.innerText = `${currentPlayer} wins!`;
-                return;
+            if (board[a] === player && board[b] === player && board[c] === player) {
+                return true;
             }
         }
-
-        if (!board.includes("") && gameActive) {
-            gameActive = false;
-            message.innerText = "It's a draw!";
-        }
+        return false;
     };
 
-    const highlightWinningCombination = (combination) => {
-        for (const index of combination) {
-            cells[index].classList.add("winning-cell");
-        }
+    const checkDraw = () => {
+        return board.every((cell) => cell !== "");
+    };
+
+    const emptyCells = (board) => {
+        return board.filter((cell) => cell === "");
     };
 
     const minimax = (newBoard, player) => {
         const availableSpots = emptyCells(newBoard);
 
-        if (checkWin(newBoard, "X")) {
-            return { score: -10 };
-        } else if (checkWin(newBoard, "O")) {
+        if (checkWin(newBoard, "O")) {
             return { score: 10 };
+        } else if (checkWin(newBoard, "X")) {
+            return { score: -10 };
         } else if (availableSpots.length === 0) {
             return { score: 0 };
         }
@@ -71,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             move.index = newBoard[availableSpots[i]];
             newBoard[availableSpots[i]] = player;
 
-            if (player == "O") {
+            if (player === "O") {
                 const result = minimax(newBoard, "X");
                 move.score = result.score;
             } else {
@@ -104,10 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return moves[bestMove];
-    };
-
-    const emptyCells = (board) => {
-        return board.filter((cell) => cell !== "X" && cell !== "O");
     };
 
     const computerMove = () => {
